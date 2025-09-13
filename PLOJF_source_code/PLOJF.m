@@ -1,5 +1,5 @@
 function [best_pos, Convergence_curve] = PLOJF(N, MaxFEs, lb, ub, dim, fobj)
-% Polar Lights Optimization with Event-Driven JADE Integration and adaptive population management through Fitness-Distance Balanced Selection
+% Polar Lights Optimization with a Jumping Historical Search strategy and adaptive population management through Fitness-Distance Balanced Selection
 
 %% JADE
 % J. Zhang and A. C. Sanderson, "JADE: Adaptive Differential Evolution With Optional External Archive," in IEEE Transactions on Evolutionary Computation, vol. 13, no. 5, pp. 945-958, Oct. 2009
