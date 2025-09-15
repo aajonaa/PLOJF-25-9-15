@@ -22,7 +22,7 @@
 \begin{document}
 \begin{frontmatter}
 
-\title{\textbf{PLOJF: Polar Lights Optimization with Jumping Historical Search and Fitness-Distance Balancing}}
+\title{\textbf{PLOJF: Polar Lights Optimization with Jumping Historical Search and Fitness-Diversity Balancing}}
 
 \begin{abstract}
 
@@ -35,7 +35,7 @@
 \end{frontmatter}
 
 \section{The Proposed PLOJF Algorithm}
-In this section, we introduce the proposed PLOJF algorithm. By integrating a Jumping Historical Search strategy and a Fitness-Distance Balanced selection mechanism, PLOJF enhances the search efficiency and solution precision of the original PLO algorithm.
+In this section, we introduce the proposed PLOJF algorithm. By integrating a Jumping Historical Search strategy and a Fitness-Diversity Balanced (FDB) selection mechanism, PLOJF enhances the search efficiency and solution precision of the original PLO algorithm.
 
 \subsection{Polar Lights Optimization}
 Polar Lights Optimization (PLO) is a metaheuristic inspired by the auroral phenomena observed near the Earth's poles. It balances exploration and exploitation through three coordinated mechanisms: (i) a gyration motion that provides local exploitation, (ii) an auroral oval walk guided by a Lévy flight to encourage global exploration, and (iii) a particle-collision–based refinement that adjusts solutions at the dimension level. An adaptive weighting scheme modulates the influence of the local and global components over the course of the search, enabling PLO to shift focus as needed.
@@ -70,7 +70,7 @@ First, PLO is prone to diversity erosion as the run progresses. As the populatio
 
 Second, PLO typically relies on greedy, one-to-one replacement, admitting an offspring only if it immediately improves fitness. This myopic policy can discard candidates that, despite having slightly worse fitness, contribute valuable spatial diversity (for example, by residing far from the incumbent best). When the search stalls, such a policy accelerates collapse around suboptimal attractors and reduces the algorithm's long-term exploratory capacity. A more robust survivor selection should, at least under stagnation, account for both quality and spatial contribution.
 
-These observations motivate two complementary enhancements. To counter diversity loss, we introduce a Jumping Historical Search (JHS) strategy that leverages an archive of recently replaced parents to construct differential, event-driven jumps for underperforming individuals, synergistically augmenting the exploratory move in (4). To mitigate myopic selection, we adopt a Fitness–Distance Balanced (FDB) survivor selection that, when stagnation is detected, merges parents and offspring, preserves an elite set by pure fitness, and fills the remaining slots using a score that balances normalized fitness with distance from the current best. The following subsections detail JHS and FDB and how they integrate with PLO's operators.
+These observations motivate two complementary enhancements. To counter diversity loss, we introduce a Jumping Historical Search (JHS) strategy that leverages an archive of recently replaced parents to construct differential, event-driven jumps for underperforming individuals, synergistically augmenting the exploratory move in (4). To mitigate myopic selection, we adopt a Fitness–Diversity Balanced (FDB) survivor selection that, when stagnation is detected, merges parents and offspring, preserves an elite set by pure fitness, and fills the remaining slots using a score that balances normalized fitness with a diversity component measured via distance to the current best. The following subsections detail JHS and FDB and how they integrate with PLO's operators.
 
 \subsection{Jumping Historical Search(JHS)}
 To counter diversity loss without disrupting promising trajectories, we employ an event-driven Jumping Historical Search (JHS). An external archive \(A\) stores recently replaced parents. For a small fraction of underperforming individuals (bottom \(q\) of the population), and only within a short window after an FDB event, JHS perturbs the exploratory candidate by a history-informed differential jump. Specifically, letting \(X_{\!\text{arch}}\in A\) be a randomly selected archived parent and \(\eta>0\) a small magnitude, we form
@@ -81,13 +81,13 @@ after which the exploratory move becomes
 \[ X_{\mathrm{cand}} = X_{\mathrm{explore}} + \Delta \qquad(11) \]
 Here, \(H\) is the hybrid guidance combining mean-, personal-best-, global-best-, and partner-driven components used in the baseline generator, and \(\varepsilon>0\) safeguards against division by zero. JHS is applied with a small probability to eligible individuals during a limited number of generations following an FDB trigger, providing targeted diversification precisely when stagnation is detected.
 
-\subsection{Fitness-Distance Balanced(FDB) Selection}
-To mitigate myopic replacement and restore exploratory capacity under stagnation, we adopt a Fitness–Distance Balanced (FDB) survivor selection. When triggered, parents and offspring are merged, and survivors are chosen in two phases. First, an elite set comprising roughly half the population is selected purely by fitness. Second, the remaining survivors are chosen by minimizing a composite score that balances normalized fitness and spatial diversity, measured as the Euclidean distance to the current best in the combined pool:
+\subsection{Fitness-Diversity Balanced (FDB) Selection}
+To mitigate myopic replacement and restore exploratory capacity under stagnation, we adopt a Fitness–Diversity Balanced (FDB) survivor selection. When triggered, parents and offspring are merged, and survivors are chosen in two phases. First, an elite set comprising roughly half the population is selected purely by fitness. Second, the remaining survivors are chosen by minimizing a composite score that balances normalized fitness and spatial diversity (diversity implemented as the Euclidean distance to the current best in the combined pool):
 \[ \mathrm{FDB\_score}(x) = \mathrm{norm}\bigl(f(x)\bigr) + \mathrm{norm}\bigl(\,\|x - x^{\star}\|_2\,\bigr) \qquad(12) \]
 This scheme preserves high-quality solutions while deliberately retaining individuals far from the current incumbent, preventing rapid collapse around a single basin and improving coverage of the search space. In our implementation, FDB is considered only after an initial portion of the budget has elapsed and when both low improvement and low diversity are detected; after an FDB event, a short cooldown is enforced and an event window activates JHS for the next few generations, coupling selection and diversification.
 
 \subsection{Operational Procedure of PLOJF}
-The proposed PLOJF enhances the original PLO by integrating the two strategies previously described: Jumping Historical Search (JHS) and Fitness–Distance Balanced (FDB) selection. JHS provides targeted, event-driven diversification for underperforming individuals via archive-based differential jumps (9)–(11), while FDB replaces myopic greedy replacement with an adaptive, two-phase survivor selection that balances fitness and diversity (12). Their integration follows a detection-and-response cycle: when stagnation and low diversity are detected, FDB is triggered and a short window activates JHS to diversify the subsequent generations.
+The proposed PLOJF enhances the original PLO by integrating the two strategies previously described: Jumping Historical Search (JHS) and Fitness–Diversity Balanced (FDB) selection. JHS provides targeted, event-driven diversification for underperforming individuals via archive-based differential jumps (9)–(11), while FDB replaces myopic greedy replacement with an adaptive, two-phase survivor selection that balances fitness and diversity (12). Their integration follows a detection-and-response cycle: when stagnation and low diversity are detected, FDB is triggered and a short window activates JHS to diversify the subsequent generations.
 
 The complete operational flow is outlined in Algorithm 1.
 
@@ -171,7 +171,7 @@ We test the contribution of the proposed two strategy to the original PLO algori
 \label{table: PLO variants}
 \begin{tabular}{lcc}
 \toprule
- & Jumping Historical Search (JHS) & Fitness-Distance Balanced (FDB) Selection \\
+ & Jumping Historical Search (JHS) & Fitness-Diversity Balanced (FDB) Selection \\
 \midrule
 PLOJF & 1 & 1 \\ 
 PPLOJ & 1 & 0 \\ 
